@@ -121,8 +121,8 @@ dataset = RushDatasets(num = 300000 ,new = True)
 
 dataloader = DataLoader(dataset, batch_size=50, collate_fn=data_collate_fn)
 ntokens = 30 # the size of vocabulary
-emsize = 200 # embedding dimension
-nhid = 200 # the dimension of the feedforward network model in nn.TransformerEncoder
+emsize = 300 # embedding dimension
+nhid = 300 # the dimension of the feedforward network model in nn.TransformerEncoder
 nlayers = 6 # the number of nn.TransformerEncoderLayer in nn.TransformerEncoder
 nhead = 6 # the number of heads in the multiheadattention models
 dropout = 0.2 # the dropout value
