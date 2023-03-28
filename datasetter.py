@@ -10,7 +10,7 @@ import random
 import utils
 
 Dict = {} #TODO: 
-datadir = "data/rush.txt"
+datadir = "rush.txt"
 
 
 ## TODO: Add random crop and random flip 
