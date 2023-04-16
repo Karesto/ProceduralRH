@@ -34,3 +34,47 @@ class MultiHeadAttention(nn.Module):
 
 
         return nn.LayerNorm(d_model)(output + residual), attn # output: [batch_size x len_q x d_model]
+    
+
+###################################################################################################
+
+
+class TransformerMLM(nn.Module):
+    def __init__(self, vocab_size, hidden_size, num_layers, num_heads, max_seq_len, dropout):
+        super().__init__()
+
+        self.token_embedding = nn.Embedding(vocab_size, hidden_size)
+        self.positional_embedding = nn.Parameter(torch.zeros(1, max_seq_len, hidden_size))
+        self.dropout = nn.Dropout(dropout)
+
+        self.transformer = nn.Transformer(hidden_size, num_heads, num_layers, dropout)
+        self.fc = nn.Linear(hidden_size, vocab_size)
+
+    def forward(self, inputs):
+        tokens, mask = inputs
+
+        # Embed tokens and add positional encoding
+        x = self.token_embedding(tokens) + self.positional_embedding[:, :tokens.shape[1], :]
+
+        # Apply dropout
+        x = self.dropout(x)
+
+        # Masked self-attention
+        attn_mask = torch.triu(torch.ones(tokens.shape[1], tokens.shape[1])) == 1
+        attn_mask = attn_mask.to(tokens.device)
+        attn_mask = attn_mask.masked_fill(mask.unsqueeze(1).unsqueeze(1), False)
+        x = self.transformer(x, x, tgt_mask=attn_mask)
+
+        # Predict masked tokens
+        x = self.fc(x)
+
+        return x
+
+# Example usage
+model = TransformerMLM(vocab_size=1000, hidden_size=256, num_layers=6, num_heads=8, max_seq_len=128, dropout=0.2)
+tokens = torch.randint(0, 1000, (32, 128))
+mask = torch.zeros_like(tokens, dtype=torch.bool)
+mask[:, 10:20] = True
+predictions = model((tokens, mask))
+
+#################################################################################################""

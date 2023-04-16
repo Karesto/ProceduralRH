@@ -68,8 +68,11 @@ def encoder(rush, first, size = 6):
     out = ""
     basestring = "xo" + string.ascii_uppercase
     for i in board:
-        out += basestring[int(i+1)] 
-    print(out)
+        if i == 28:
+            out += "X"
+        else : 
+            out += basestring[int(i+1)] 
+    #print(out)
     return out
 
 

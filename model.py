@@ -10,7 +10,7 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-
+print(device)
 class PositionalEncoding(nn.Module):
 
     def __init__(self, d_model, dropout=0.1, max_len=5000):
@@ -88,7 +88,7 @@ def train(model, dataloader):
             loss.backward()
             optim.step()
     
-        if (epoch+1)%40==0 or epoch==0:
+        if (epoch)%40==0:
             print("Epoch: {} -> loss: {}".format(epoch+1, total_loss/(len(dataloader)*epoch+1)))
             namestr = "TransModel" + f"epoch{epoch}" + ".pth"
             torch.save(model.state_dict(),namestr)
@@ -115,24 +115,29 @@ def data_collate_fn(dataset_samples_list):
     return inputs
 
 
-from datasetter import RushDatasets
 
-dataset = RushDatasets(num = 300000 ,new = True)
-
-dataloader = DataLoader(dataset, batch_size=50, collate_fn=data_collate_fn)
 ntokens = 30 # the size of vocabulary
-emsize = 300 # embedding dimension
-nhid = 300 # the dimension of the feedforward network model in nn.TransformerEncoder
-nlayers = 6 # the number of nn.TransformerEncoderLayer in nn.TransformerEncoder
-nhead = 6 # the number of heads in the multiheadattention models
-dropout = 0.2 # the dropout value
-model = TransformerModel(ntokens, emsize, nhead, nhid, nlayers, dropout).to(device)
+emsize = 250 # embedding dimension
+nhid = 250 # the dimension of the feedforward network model in nn.TransformerEncoder
+nlayers = 5 # the number of nn.TransformerEncoderLayer in nn.TransformerEncoder
+nhead = 5 # the number of heads in the multiheadattention models
+dropout = 0.25 # the dropout value
 
-total_params = sum(
-	param.numel() for param in model.parameters()
-)
+if __name__ == "__main__":
+    
+    from datasetter import RushDatasets
 
-train(model, dataloader)
+    dataset = RushDatasets(num = 500000 ,new = True)
+
+    dataloader = DataLoader(dataset, batch_size=32, collate_fn=data_collate_fn)
+
+    model = TransformerModel(ntokens, emsize, nhead, nhid, nlayers, dropout).to(device)
+
+    total_params = sum(
+        param.numel() for param in model.parameters()
+    )
+
+    train(model, dataloader)
 
 
 # Predict
