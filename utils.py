@@ -4,10 +4,13 @@ import string
 import torch
 import os 
 
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 datadir = "data/rush.txt"
 
+sns.set_theme()
 
 def decoder(rush, size = 6):
     '''
@@ -404,6 +407,11 @@ def gaspard_to_fogleman(path):
 # transform2("data/lvl8.txt")
 
 #--------------------------------------------------------------------------------------------------------------------------------------#
+
+def draw(rush, path, decode = False):
+    if decode : rush = decoder(rush)
+    plt.imshow(rush, interpolation='none')
+    plt.imsave(os.path.join(path, rush + ".jpg"), rush)
 
 class Logger(object):
     def __init__(self, fpath=None):

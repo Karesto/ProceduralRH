@@ -56,10 +56,10 @@ class TransformerModel(nn.Module):
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
-    def forward(self, src, src_mask):
+    def forward(self, src, src_mask = None):
         src = self.encoder(src) * math.sqrt(self.ninp)
         src = self.pos_encoder(src)
-        output = self.transformer_encoder(src, src_mask)
+        output = self.transformer_encoder(src)
         output = self.decoder(output)
         return output
 
@@ -71,6 +71,7 @@ def train(model, dataloader):
     optim = torch.optim.AdamW(model.parameters(), lr=0.001)
 
     for epoch in range(epochs):
+        print(epoch)
         for batch in dataloader:
             optim.zero_grad()
             input = batch.clone().int()
@@ -82,13 +83,13 @@ def train(model, dataloader):
             input[mask_idx] = 29
             input = input.view(batch.shape)
 
-            out = model(input.to(device), src_mask.to(device))
+            out = model(input.to(device))
             loss = criterion(out.view(-1, ntokens), batch.view(-1).to(device).long())
             total_loss += loss
             loss.backward()
             optim.step()
     
-        if (epoch)%40==0:
+        if (epoch)%20==0:
             print("Epoch: {} -> loss: {}".format(epoch+1, total_loss/(len(dataloader)*epoch+1)))
             namestr = "TransModel" + f"epoch{epoch}" + ".pth"
             torch.save(model.state_dict(),namestr)
@@ -117,10 +118,10 @@ def data_collate_fn(dataset_samples_list):
 
 
 ntokens = 30 # the size of vocabulary
-emsize = 250 # embedding dimension
-nhid = 250 # the dimension of the feedforward network model in nn.TransformerEncoder
-nlayers = 5 # the number of nn.TransformerEncoderLayer in nn.TransformerEncoder
-nhead = 5 # the number of heads in the multiheadattention models
+emsize = 300 # embedding dimension
+nhid = 300 # the dimension of the feedforward network model in nn.TransformerEncoder
+nlayers = 6 # the number of nn.TransformerEncoderLayer in nn.TransformerEncoder
+nhead = 6 # the number of heads in the multiheadattention models
 dropout = 0.25 # the dropout value
 
 if __name__ == "__main__":
@@ -149,6 +150,14 @@ if __name__ == "__main__":
 
 
 # TODO: 
-# - GPT Architecture 
-# - VAE/with transformers 
+
+
+
+# - Find new <Représentation> less sparse to make normal networks work ?
+# - DenseNet Encoder Decoder
+# - Parameters to change : Embed Dim/ LR / Positional Encoding Args
 # - 7x7
+
+
+# --------- Extras ---------
+# - Check why single input is giving wrong out shape
