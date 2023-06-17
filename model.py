@@ -1,6 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import sys
+import os
+import gc
 
 import math
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
@@ -63,12 +66,19 @@ class TransformerModel(nn.Module):
         output = self.decoder(output)
         return output
 
-def train(model, dataloader):
+def train(model, dataloader, path):
+
+    #Training Parameters
     model.train()
     epochs = 500
     total_loss = 0
     criterion = nn.CrossEntropyLoss()
     optim = torch.optim.AdamW(model.parameters(), lr=0.001)
+
+    #Saving path
+    current_directory = os.getcwd()
+    new_directory_path = os.path.join(current_directory, path)
+    os.makedirs(new_directory_path, exist_ok=True)
 
     for epoch in range(epochs):
         print(epoch)
@@ -88,11 +98,12 @@ def train(model, dataloader):
             total_loss += loss
             loss.backward()
             optim.step()
-    
+            torch.cuda.empty_cache()
+            gc.collect()
         if (epoch)%20==0:
             print("Epoch: {} -> loss: {}".format(epoch+1, total_loss/(len(dataloader)*epoch+1)))
             namestr = "TransModel" + f"epoch{epoch}" + ".pth"
-            torch.save(model.state_dict(),namestr)
+            torch.save(model.state_dict(),os.path.join(new_directory_path,namestr))
             print('Model saved in {}'.format(namestr))
 
 def predict(model, input):
@@ -129,7 +140,7 @@ if __name__ == "__main__":
     from datasetter import RushDatasets
 
     dataset = RushDatasets(num = 500000 ,new = True)
-
+    path = sys.argv[1]
     dataloader = DataLoader(dataset, batch_size=32, collate_fn=data_collate_fn)
 
     model = TransformerModel(ntokens, emsize, nhead, nhid, nlayers, dropout).to(device)
@@ -138,7 +149,7 @@ if __name__ == "__main__":
         param.numel() for param in model.parameters()
     )
 
-    train(model, dataloader)
+    train(model, dataloader, path)
 
 
 # Predict
@@ -151,8 +162,9 @@ if __name__ == "__main__":
 
 # TODO: 
 
+# - Add path to save as arg.
 
-
+# - Représentation channel : blocs horizontaux de 2/3   , verticaux de 2/3
 # - Find new <Représentation> less sparse to make normal networks work ?
 # - DenseNet Encoder Decoder
 # - Parameters to change : Embed Dim/ LR / Positional Encoding Args
