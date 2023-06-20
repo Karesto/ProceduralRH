@@ -81,11 +81,16 @@ def train(model, dataloader, path):
     os.makedirs(new_directory_path, exist_ok=True)
 
     for epoch in range(epochs):
-        print(epoch)
+        total_memory, used_memory, free_memory = map(
+                    int, os.popen('free -t -m').readlines()[-1].split()[1:])
+        prctg = (used_memory/total_memory) * 100
+        print(f"Memory used in {epoch} : {prctg}.")
+
         for batch in dataloader:
+            batch = batch.to(device)
             optim.zero_grad()
             input = batch.clone().int()
-            src_mask = model.generate_square_subsequent_mask(batch.shape[1])
+            # src_mask = model.generate_square_subsequent_mask(batch.shape[1])
             rand_value = torch.rand(batch.shape)
             rand_mask = (rand_value < 0.15) * (input != 0)
             mask_idx = (rand_mask.flatten() == True).nonzero().view(-1)
@@ -98,6 +103,7 @@ def train(model, dataloader, path):
             total_loss += loss
             loss.backward()
             optim.step()
+            del batch, out, loss
             torch.cuda.empty_cache()
             gc.collect()
         if (epoch)%20==0:
