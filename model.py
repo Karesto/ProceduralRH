@@ -87,7 +87,6 @@ def train(model, dataloader, path):
         print(f"Memory used in {epoch} : {prctg}.")
 
         for batch in dataloader:
-            batch = batch.to(device)
             optim.zero_grad()
             input = batch.clone().int()
             # src_mask = model.generate_square_subsequent_mask(batch.shape[1])
@@ -100,9 +99,9 @@ def train(model, dataloader, path):
 
             out = model(input.to(device))
             loss = criterion(out.view(-1, ntokens), batch.view(-1).to(device).long())
-            total_loss += loss
             loss.backward()
             optim.step()
+            total_loss += loss.detach()
             del batch, out, loss
             torch.cuda.empty_cache()
             gc.collect()
