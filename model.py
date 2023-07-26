@@ -70,7 +70,7 @@ def train(model, dataloader, path):
 
     #Training Parameters
     model.train()
-    epochs = 500
+    epochs = 150
     total_loss = 0
     criterion = nn.CrossEntropyLoss()
     optim = torch.optim.AdamW(model.parameters(), lr=0.001)
@@ -144,8 +144,11 @@ if __name__ == "__main__":
     
     from datasetter import RushDatasets
 
-    dataset = RushDatasets(num = 100000 ,new = True)
     path = sys.argv[1]
+    numbr = sys.argv[2]
+
+    dataset = RushDatasets(num = numbr ,new = True)
+
     dataloader = DataLoader(dataset, batch_size=32, collate_fn=data_collate_fn)
 
     model = TransformerModel(ntokens, emsize, nhead, nhid, nlayers, dropout).to(device)
