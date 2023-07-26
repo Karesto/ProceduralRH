@@ -8,6 +8,7 @@ import torchvision.datasets as dset
 from random import randrange
 import random
 import utils
+import time 
 
 Dict = {} #TODO: 
 datadir = "rush.txt"
@@ -148,7 +149,7 @@ def RushDatasets(num = 5000, new = False):
 
         base = np.genfromtxt(datadir, dtype= str)[:,1]
         data = base[np.random.choice(len(base),num)]
-        np.save("data/rushtest.npy", data)
+        np.save("data/rushtest" + str(time.time() + ".npy"), data)
 
     
 

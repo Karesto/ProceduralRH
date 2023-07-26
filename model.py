@@ -144,7 +144,7 @@ if __name__ == "__main__":
     
     from datasetter import RushDatasets
 
-    dataset = RushDatasets(num = 500000 ,new = True)
+    dataset = RushDatasets(num = 100000 ,new = True)
     path = sys.argv[1]
     dataloader = DataLoader(dataset, batch_size=32, collate_fn=data_collate_fn)
 
