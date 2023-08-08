@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import sys
 import os
 import gc
-
+import random
 import math
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
 
@@ -66,7 +66,7 @@ class TransformerModel(nn.Module):
         output = self.decoder(output)
         return output
 
-def train(model, dataloader, path):
+def train(model, dataloader, path, min_m = 0.15, max_m = 0.6):
 
     #Training Parameters
     model.train()
@@ -87,11 +87,12 @@ def train(model, dataloader, path):
         print(f"Memory used in {epoch} : {prctg}.")
 
         for batch in dataloader:
+            m_value = random.uniform(min_m, max_m)
             optim.zero_grad()
             input = batch.clone().int()
             # src_mask = model.generate_square_subsequent_mask(batch.shape[1])
             rand_value = torch.rand(batch.shape)
-            rand_mask = (rand_value < 0.15) * (input != 0)
+            rand_mask = (rand_value < m_value) * (input != 0)
             mask_idx = (rand_mask.flatten() == True).nonzero().view(-1)
             input = input.flatten()
             input[mask_idx] = 29
