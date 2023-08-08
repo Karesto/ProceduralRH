@@ -146,7 +146,7 @@ if __name__ == "__main__":
     from datasetter import RushDatasets
 
     path = sys.argv[1]
-    numbr = sys.argv[2]
+    numbr = int(sys.argv[2])
 
     dataset = RushDatasets(num = numbr ,new = True)
 
