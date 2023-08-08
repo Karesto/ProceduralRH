@@ -149,7 +149,7 @@ def RushDatasets(num = 5000, new = False):
 
         base = np.genfromtxt(datadir, dtype= str)[:,1]
         data = base[np.random.choice(len(base),num)]
-        np.save("data/rushtest" + str(time.time() + ".npy"), data)
+        np.save("data/rushtest" + str(time.time()) + ".npy", data)
 
     
 
